@@ -34,7 +34,7 @@ app.post("/api/register", async (req, res) => {
         passcode: hashedPasscode,
       });
       await merchant.save();
-      res.status(201).json({ message: "Merchant registered successfully" });
+      res.status(201).json({ message: "Merchant registered successfully." });
     } else {
       // Register a customer
       const {
@@ -56,7 +56,7 @@ app.post("/api/register", async (req, res) => {
         enc_lg_b,
       });
       await customer.save();
-      res.status(201).json({ message: "Customer registered successfully" });
+      res.status(201).json({ message: "Customer registered successfully." });
     }
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -70,16 +70,16 @@ app.post("/api/update", async (req, res) => {
   try {
     const merchant = await Merchant.findOne({ relay_id });
     if (!merchant)
-      return res.status(404).json({ message: "Merchant not found" });
+      return res.status(404).json({ message: "Merchant not found." });
 
     const isPasscodeValid = await bcrypt.compare(passcode, merchant.passcode);
     if (!isPasscodeValid)
-      return res.status(403).json({ message: "Invalid passcode" });
+      return res.status(403).json({ message: "Invalid passcode." });
 
     merchant.addr = addr;
     merchant.status = "active";
     await merchant.save();
-    res.status(200).json({ message: "Merchant updated successfully" });
+    res.status(200).json({ message: "Merchant updated successfully." });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -92,7 +92,7 @@ app.post("/api/charge", async (req, res) => {
   try {
     const customer = await Customer.findOne({ relay_id });
     if (!customer)
-      return res.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({ message: "Customer not found." });
 
     const enc_b =
       amount <= customer.threshold ? customer.enc_sm_b : customer.enc_lg_b;
@@ -125,17 +125,17 @@ app.post("/api/storeTx", async (req, res) => {
   try {
     const merchant = await Merchant.findOne({ relay_id: to });
     if (!merchant)
-      return res.status(404).json({ message: "Merchant not found" });
+      return res.status(404).json({ message: "Merchant not found." });
     merchant.tx.push(tx);
     await merchant.save();
 
     const customer = await Customer.findOne({ relay_id: from });
     if (!customer)
-      return res.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({ message: "Customer not found." });
     customer.tx.push(tx);
     await customer.save();
 
-    res.status(200).json({ message: "Transaction stored successfully" });
+    res.status(200).json({ message: "Transaction stored successfully." });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -149,23 +149,23 @@ app.post("/api/login", async (req, res) => {
     if (role.toLowerCase() == "merchant") {
       const merchant = await Merchant.findOne({ relay_id });
       if (!merchant)
-        return res.status(404).json({ message: "Merchant not found" });
+        return res.status(404).json({ message: "Merchant not found." });
 
       const isPasscodeValid = await bcrypt.compare(passcode, merchant.passcode);
       if (!isPasscodeValid)
-        return res.status(403).json({ message: "Invalid passcode" });
+        return res.status(403).json({ message: "Invalid passcode." });
 
       const token = jwt.sign({ relay_id, isMerchant: true }, SECRET_KEY);
       res
         .status(200)
-        .json({ message: "Merchant login successful", token, merchant });
+        .json({ message: "Merchant login successful.", token, merchant });
     } else {
       const customer = await Customer.findOne({ relay_id });
       if (!customer)
-        return res.status(404).json({ message: "Customer not found" });
+        return res.status(404).json({ message: "Customer not found." });
       // As long as a customer can connect the wallet with a correct address, we can assume the customer is authenticated
       // TODO: need to add middleware to guard who can access this route
-      res.status(200).json({ message: "Customer login successful", customer });
+      res.status(200).json({ message: "Customer login successful.", customer });
     }
   } catch (err) {
     res.status(400).json({ error: err.message });
