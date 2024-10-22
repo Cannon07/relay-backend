@@ -123,19 +123,19 @@ app.post("/api/otp", async (req, res) => {
 
 // Store transaction hash
 app.post("/api/storeTx", async (req, res) => {
-  const { from, to, tx } = req.body;
+  const { from, to, txn } = req.body;
 
   try {
     const merchant = await Merchant.findOne({ addr: to });
     if (!merchant)
       return res.status(404).json({ message: "Merchant not found." });
-    merchant.tx.push(tx);
+    merchant.tx.push(txn);
     await merchant.save();
 
     const customer = await Customer.findOne({ relay_id: from });
     if (!customer)
       return res.status(404).json({ message: "Customer not found." });
-    customer.tx.push(tx);
+    customer.tx.push(txn);
     await customer.save();
 
     res.status(200).json({ message: "Transaction stored successfully." });
