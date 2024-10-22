@@ -7,11 +7,13 @@ import dotenv from "dotenv";
 import { Customer } from "../db/models/customer.js";
 import { Merchant } from "../db/models/merchant.js";
 import { connect } from "../db/db.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.SECRET_KEY || "supersecretkey";
@@ -87,6 +89,7 @@ app.post("/api/update", async (req, res) => {
 
 // Retrieve encrypted seed phrase
 app.post("/api/charge", async (req, res) => {
+  console.log(req.body);
   const { relay_id, amount } = req.body;
 
   try {
@@ -123,7 +126,7 @@ app.post("/api/storeTx", async (req, res) => {
   const { from, to, tx } = req.body;
 
   try {
-    const merchant = await Merchant.findOne({ relay_id: to });
+    const merchant = await Merchant.findOne({ addr: to });
     if (!merchant)
       return res.status(404).json({ message: "Merchant not found." });
     merchant.tx.push(tx);
@@ -170,6 +173,10 @@ app.post("/api/login", async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+});
+
+app.get("/api/test", (req, res) => {
+  res.status(200).json({ message: "Hello, Raspberry Pi." })
 });
 
 // Start the server
