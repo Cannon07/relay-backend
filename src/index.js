@@ -175,6 +175,31 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// Get transactions for a user
+app.get("/api/transactions/:role/:id", async (req, res) => {
+  const { role, id } = req.params;
+  
+  try {
+    if (role.toLowerCase() === "merchant") {
+      const merchant = await Merchant.findOne({ relay_id: id });
+      if (!merchant) {
+        return res.status(404).json({ message: "Merchant not found." });
+      }
+      res.status(200).json({ transactions: merchant.tx });
+    } else if (role.toLowerCase() === "customer") {
+      const customer = await Customer.findOne({ relay_id: id });
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found." });
+      }
+      res.status(200).json({ transactions: customer.tx });
+    } else {
+      res.status(400).json({ message: "Invalid role specified." });
+    }
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 app.get("/api/test", (req, res) => {
   res.status(200).json({ message: "Hello, Raspberry Pi." })
 });
